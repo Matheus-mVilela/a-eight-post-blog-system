@@ -1,0 +1,38 @@
+name: CI
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./a-eight-post-blog-system
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: a-eight-post-blog-system
+
+    - name: Set up Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+
+    - name: Build Docker images
+      run: |
+        [ -f .env ] || cp .env.example .env
+        docker-compose build
+    
+    - name: Run Migrations
+      run: docker-compose run --rm app alembic upgrade head
+
+    - name: Run format
+      run: docker-compose run --rm app /bin/bash -c 'isort . && blue . && flake8 .'
+
+    - name: Run tests
+      run: docker-compose run app /bin/bash -c 'pytest app/tests -x -vvv -W ignore'
+
+    - name: Tear down Docker Compose
+      run: docker-compose down

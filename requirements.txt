@@ -1,0 +1,20 @@
+# App dependencies
+fastapi
+SQLAlchemy
+strawberry-graphql
+SQLAlchemy-Utils
+alembic
+temporalio
+environs
+psycopg2
+requests
+uvicorn
+
+# Dev dependencies
+blue
+flake8
+ipython
+isort
+
+# Testing dependencies
+pytest

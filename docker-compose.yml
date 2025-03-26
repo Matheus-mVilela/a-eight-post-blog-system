@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app/
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    stdin_open: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${POSTGRES_DB:-postgres} -U ${POSTGRES_USER:-user}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    volumes:
+      - ./postgres/volumes:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
